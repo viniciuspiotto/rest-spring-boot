@@ -1,7 +1,7 @@
 package com.piotto.apigateway;
 
 import com.piotto.apigateway.exceptions.UnsupportedMathOperationException;
-import jakarta.websocket.server.PathParam;
+import com.piotto.apigateway.utils.MathUtils;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.concurrent.atomic.AtomicLong;
@@ -16,26 +16,55 @@ public class MathController {
             method = RequestMethod.GET
     )
     public Double sum(@PathVariable(value = "numberOne") String numberOne,
-                      @PathVariable(value = "numberTwo") String numberTwo) throws Exception {
-        if (!isNumeric(numberOne) || !isNumeric(numberTwo)) {
+                      @PathVariable(value = "numberTwo") String numberTwo) {
+        if (!MathUtils.isNumeric(numberOne) || !MathUtils.isNumeric(numberTwo)) {
             throw new UnsupportedMathOperationException("Invalid numbers");
         }
-        return convertToDouble(numberOne) + convertToDouble(numberTwo);
+        return MathUtils.convertToDouble(numberOne) + MathUtils.convertToDouble(numberTwo);
     }
 
-    private boolean isNumeric(String str) {
-        if (str == null) {
-            return false;
+    @RequestMapping(
+            value = "/sub/{numberOne}/{numberTwo}",
+            method = RequestMethod.GET
+    )
+    public Double subtract(
+            @PathVariable(value = "numberOne") String numberOne,
+            @PathVariable(value = "numberTwo") String numberTwo
+            ) {
+        if (!MathUtils.isNumeric(numberOne) || !MathUtils.isNumeric(numberTwo)) {
+            throw new UnsupportedMathOperationException("Invalid numbers");
         }
-        String number = str.replace(",", ".");
-        return str.matches("[-+]?[0-9]*\\.?[0-9]+");
+
+        return MathUtils.convertToDouble(numberOne) - MathUtils.convertToDouble(numberTwo);
     }
 
-    private Double convertToDouble(String number) {
-        if (number == null) {
-            return null;
+    @RequestMapping(
+            value = "/div/{numberOne}/{numberTwo}",
+            method = RequestMethod.GET
+    )
+    public Double division(
+            @PathVariable(value = "numberOne") String numberOne,
+            @PathVariable(value = "numberTwo") String numberTwo
+            ) {
+        if (!MathUtils.isNumeric(numberOne) || !MathUtils.isNumeric(numberTwo) || !MathUtils.isZero(numberTwo)) {
+            throw new UnsupportedMathOperationException("Invalid numbers");
         }
-        number = number.replace(",", ".");
-        return Double.parseDouble(number);
+
+        return MathUtils.convertToDouble(numberOne) / MathUtils.convertToDouble(numberTwo);
+    }
+
+    @RequestMapping(
+            value = "/mul/{numberOne}/{numberTwo}",
+            method = RequestMethod.GET
+    )
+    public Double multiply(
+            @PathVariable(value = "numberOne") String numberOne,
+            @PathVariable(value = "numberTwo") String numberTwo
+            ) {
+        if (!MathUtils.isNumeric(numberOne) || !MathUtils.isNumeric(numberTwo)) {
+            throw new UnsupportedMathOperationException("Invalid numbers");
+        }
+
+        return MathUtils.convertToDouble(numberOne) * MathUtils.convertToDouble(numberTwo);
     }
 }

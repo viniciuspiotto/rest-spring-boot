@@ -1,5 +1,9 @@
 package com.piotto.apigateway.services;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
+import com.piotto.apigateway.controller.PersonController;
 import com.piotto.apigateway.dto.PersonDTO;
 import com.piotto.apigateway.exceptions.ResourceNotFoundException;
 import com.piotto.apigateway.mapper.PersonMapper;
@@ -27,33 +31,43 @@ public class PersonServices {
         logger.info("Finding one person!");
         var entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No person found with id: " + id));
-        return PersonMapper.INSTANCE.personToPersonDTO(entity);
+        PersonDTO dto = PersonMapper.INSTANCE.personToPersonDTO(entity);
+        dto.add(linkTo(methodOn(PersonController.class).findById(id)).withSelfRel());
+        return dto;
     }
 
     public List<PersonDTO> findAll() {
         logger.info("Finding all persons!");
 
-        return PersonMapper.INSTANCE.personsToPersonDTOs(repository.findAll());
+        var persons = PersonMapper.INSTANCE.personsToPersonDTOs(repository.findAll());
+        persons
+                .forEach(p -> p.add(linkTo(methodOn(PersonController.class).findById(p.getKey())).withSelfRel()));
+        return persons;
     }
 
     public PersonDTO create(PersonDTO person) {
         logger.info("Creating a new person!");
         var entity = PersonMapper.INSTANCE.personDTOToPerson(person);
-        return PersonMapper.INSTANCE.personToPersonDTO(repository.save(entity));
+        var dto = PersonMapper.INSTANCE.personToPersonDTO(repository.save(entity));
+        dto.add(linkTo(methodOn(PersonController.class).findById(entity.getId())).withSelfRel());
+        return dto;
     }
 
     public PersonDTO update(PersonDTO person) {
         logger.info("Updating a person!");
 
-        var entity = repository.findById(person.getId())
-                .orElseThrow(() -> new ResourceNotFoundException("No person found with id: " + person.getId()));
+        var entity = repository.findById(person.getKey())
+                .orElseThrow(() -> new ResourceNotFoundException("No person found with id: " + person.getKey()));
 
         entity.setFirstName(person.getFirstName());
         entity.setLastName(person.getLastName());
         entity.setAddress(person.getAddress());
         entity.setGender(person.getGender());
 
-        return PersonMapper.INSTANCE.personToPersonDTO(repository.save(entity));
+        var dto = PersonMapper.INSTANCE.personToPersonDTO(repository.save(entity));
+        dto.add(linkTo(methodOn(PersonController.class).findById(entity.getId())).withSelfRel());
+
+        return dto;
     }
 
     public void delete(Long id) {

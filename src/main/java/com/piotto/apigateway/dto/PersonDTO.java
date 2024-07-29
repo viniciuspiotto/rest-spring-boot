@@ -1,11 +1,22 @@
 package com.piotto.apigateway.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
+import org.springframework.hateoas.RepresentationModel;
+
+import java.io.Serializable;
 import java.util.Objects;
 
-public class PersonDTO {
+@JsonPropertyOrder({"id", "first_name", "last_name", "address", "gender"})
+public class PersonDTO extends RepresentationModel<PersonDTO> implements Serializable {
 
-    private Long id;
+    @JsonProperty("id")
+    private Long key;
+
+    @JsonProperty("first_name")
     private String firstName;
+
+    @JsonProperty("last_name")
     private String lastName;
     private String address;
     private String gender;
@@ -13,12 +24,12 @@ public class PersonDTO {
     public PersonDTO() {
     }
 
-    public Long getId() {
-        return id;
+    public Long getKey() {
+        return key;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public void setKey(Long key) {
+        this.key = key;
     }
 
     public String getFirstName() {
@@ -57,12 +68,13 @@ public class PersonDTO {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
         PersonDTO personDTO = (PersonDTO) o;
-        return Objects.equals(id, personDTO.id) && Objects.equals(firstName, personDTO.firstName) && Objects.equals(lastName, personDTO.lastName) && Objects.equals(address, personDTO.address) && Objects.equals(gender, personDTO.gender);
+        return Objects.equals(key, personDTO.key) && Objects.equals(firstName, personDTO.firstName) && Objects.equals(lastName, personDTO.lastName) && Objects.equals(address, personDTO.address) && Objects.equals(gender, personDTO.gender);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, firstName, lastName, address, gender);
+        return Objects.hash(super.hashCode(), key, firstName, lastName, address, gender);
     }
 }

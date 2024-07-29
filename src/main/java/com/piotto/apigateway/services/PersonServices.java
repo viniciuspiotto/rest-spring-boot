@@ -1,7 +1,8 @@
 package com.piotto.apigateway.services;
 
+import com.piotto.apigateway.dto.PersonDTO;
 import com.piotto.apigateway.exceptions.ResourceNotFoundException;
-import com.piotto.apigateway.model.Person;
+import com.piotto.apigateway.mapper.PersonMapper;
 import com.piotto.apigateway.repositories.PersonRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -17,26 +18,27 @@ public class PersonServices {
     @Autowired
     PersonRepository repository;
 
-    public Person findById(Long id) {
+    public PersonDTO findById(Long id) {
 
         logger.info("Finding one person!");
-        return repository.findById(id)
+        var entity = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("No person found with id: " + id));
+        return PersonMapper.INSTANCE.personToPersonDTO(entity);
     }
 
-    public List<Person> findAll() {
+    public List<PersonDTO> findAll() {
         logger.info("Finding all persons!");
 
-        return repository.findAll();
+        return PersonMapper.INSTANCE.personsToPersonDTOs(repository.findAll());
     }
 
-    public Person create(Person person) {
+    public PersonDTO create(PersonDTO person) {
         logger.info("Creating a new person!");
-
-        return repository.save(person);
+        var entity = PersonMapper.INSTANCE.personDTOToPerson(person);
+        return PersonMapper.INSTANCE.personToPersonDTO(repository.save(entity));
     }
 
-    public Person update(Person person) {
+    public PersonDTO update(PersonDTO person) {
         logger.info("Updating a person!");
 
         var entity = repository.findById(person.getId())
@@ -47,7 +49,7 @@ public class PersonServices {
         entity.setAddress(person.getAddress());
         entity.setGender(person.getGender());
 
-        return repository.save(entity);
+        return PersonMapper.INSTANCE.personToPersonDTO(repository.save(entity));
     }
 
     public void delete(Long id) {

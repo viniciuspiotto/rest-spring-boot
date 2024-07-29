@@ -15,8 +15,12 @@ import java.util.List;
 @RequestMapping("/person")
 public class PersonController {
 
+    private final PersonServices service;
+
     @Autowired
-    private PersonServices service;
+    public PersonController(PersonServices service) {
+        this.service = service;
+    }
 
     @GetMapping(
             value = "/{id}",

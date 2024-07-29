@@ -15,8 +15,12 @@ public class PersonServices {
 
     private final Logger logger = Logger.getLogger(PersonServices.class.getName());
 
+    private final PersonRepository repository;
+
     @Autowired
-    PersonRepository repository;
+    public PersonServices(PersonRepository repository) {
+        this.repository = repository;
+    }
 
     public PersonDTO findById(Long id) {
 
